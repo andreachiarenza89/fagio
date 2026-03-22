@@ -294,12 +294,12 @@ function renderAdminModal(){
     body=`
       <div class="admin-section">
         <p class="admin-section-title">Aggiungi regalo</p>
-        <input class="admin-input" id="newName" value="${esc(state.newGift.name)}" placeholder="Nome regalo" oninput="state.newGift.name=this.value">
+        <input class="admin-input" id="newName" placeholder="Nome regalo">
         <div class="admin-input-row">
-          <input class="admin-input" style="margin:0" id="newPrice" value="${esc(state.newGift.price)}" placeholder="Prezzo (£)" inputmode="decimal" oninput="state.newGift.price=this.value.replace(/[^0-9.]/g,'')">
-          <input class="admin-input" style="margin:0;flex:2" id="newLink" value="${esc(state.newGift.link)}" placeholder="Link (opzionale)" oninput="state.newGift.link=this.value">
+          <input class="admin-input" style="margin:0" id="newPrice" placeholder="Prezzo (£)" inputmode="decimal">
+          <input class="admin-input" style="margin:0;flex:2" id="newLink" placeholder="Link (opzionale)">
         </div>
-        <button class="btn-add" ${(!state.newGift.name.trim()||!state.newGift.price)?'disabled':''} onclick="addGift()">${SVG.plus} Aggiungi</button>
+        <button class="btn-add" onclick="addGift()">${SVG.plus} Aggiungi</button>
       </div>
       <p class="admin-section-title">Regali attuali</p>
       ${giftRows}`;
@@ -350,8 +350,12 @@ window.confirmDeleteGift=id=>{state.confirmDelete=id;render()};
 window.cancelDelete=()=>{state.confirmDelete=null;render()};
 window.deleteGift=id=>{gifts=gifts.filter(g=>g.id!==id);delete contribs[id];saveGifts();saveContribs();state.confirmDelete=null;render()};
 window.addGift=()=>{
-  if(!state.newGift.name.trim()||!state.newGift.price)return;
-  gifts.push({id:"g_"+Date.now(),name:state.newGift.name.trim(),price:Number(state.newGift.price),link:state.newGift.link.trim()});
+  const n=(document.getElementById("newName")||{}).value||"";
+  const p=((document.getElementById("newPrice")||{}).value||"").replace(/[^0-9.]/g,"");
+  const l=(document.getElementById("newLink")||{}).value||"";
+  if(!n.trim()){document.getElementById("newName").style.borderColor="#d9534f";return}
+  if(!p||Number(p)<=0){document.getElementById("newPrice").style.borderColor="#d9534f";return}
+  gifts.push({id:"g_"+Date.now(),name:n.trim(),price:Number(p),link:l.trim()});
   saveGifts();state.newGift={name:"",price:"",link:""};render();
 };
 
